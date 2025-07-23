@@ -59,6 +59,8 @@ deactivate # when you are completely done
 
 ## Usage
 
+**PLEASE HAVE ALIGNED IMAGES!! STACKING WILL NOT TURN OUT GOOD OTHERWISE**
+
 First, import KZStack and all its functions (for denoising / quality).
 
 Follow the provided `stack_accumualte.ipynb` for your data (change the path).
