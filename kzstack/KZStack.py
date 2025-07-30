@@ -40,7 +40,7 @@ class KZStack:
 
     def get_image_filepaths(self, stack_path, include_subdirectories = False):
         '''
-        load the path of the images to use
+        Load the path of the images to use.
         '''
 
         for root, dirs, files in os.walk(stack_path):
@@ -56,7 +56,7 @@ class KZStack:
 
     def add_biases(self, biases_path):
         '''
-        biases for your camera, if you have them
+        Add the biases for your camera, if you have them.
         '''
 
         self.biases = cv2.imread(biases_path)
@@ -65,10 +65,13 @@ class KZStack:
 
     def stack_accumulate(self, quality_filter = default_sharpness_filter, MAX_IMAGES = None, GAMMA = 2.2, ND = 0):
         '''
-        quality_filter: a function that takes in an image and outputs whether or not to use it
-        MAX_IMAGES: the maximum amount of images to use
-        GAMMA: an effect to undo what many cameras do, set to 1 if you would not like to use it
-        ND: simulates an ND filter, multiplies individual images by 2 ** -ND
+        Stacks images together, brightening the overall picture.
+
+        Parameters:
+            quality_filter: a function that takes in an image and outputs whether or not to use it
+            MAX_IMAGES: the maximum amount of images to use
+            GAMMA: an effect to undo what many cameras do, set to 1 if you would not like to use it
+            ND: simulates an ND filter, multiplies individual images by 2 ** -ND
         '''
 
         self.final_image = None
@@ -92,12 +95,46 @@ class KZStack:
 
         return self.final_image, self.image_count
 
+    def stack_maximum(self, quality_filter = default_sharpness_filter, MAX_IMAGES = None):
+        '''
+        Stacks images together, taking the maximum pixel value at each position. Treat GAMMA as 2.2 for post-processing.
+
+        Parameters:
+            quality_filter: a function that takes in an image and outputs whether or not to use it
+            MAX_IMAGES: the maximum amount of images to use
+        '''
+
+        self.final_image = None
+        self.image_count = 0
+
+        while self.image_filepaths and (MAX_IMAGES is None or self.image_count < MAX_IMAGES):
+            image_path = self.image_filepaths.pop(-1)
+            image = cv2.imread(image_path)
+
+            if self.final_image is None:
+                self.final_image = numpy.zeros_like(image, dtype = 'float32')
+
+            if quality_filter(image):
+                image = numpy.nan_to_num(image, nan = 0, posinf = 255, neginf = 0)
+                self.final_image += numpy.maximum(self.final_image, image)
+                self.image_count += 1
+
+            else:
+                print(f'Bad Image: {image_path}')
+
+        self.final_image = self.final_image ** 2.2
+
+        return self.final_image, self.image_count
+
     def stack_average(self, quality_filter = default_sharpness_filter, MAX_IMAGES = None, FINAL_ND = 0):
         '''
-        quality_filter: a function that takes in an image and outputs whether or not to use it
-        MAX_IMAGES: the maximum amount of images to use
-        (GAMMA): treat it as 2.2
-        FINAL_ND: simulates an ND filter on the final image, multiplies individual images by 2 ** -ND
+        Stacks images together, averaging the pixel values at each position (accumulate ND = 0, / image count). Treat GAMMA as 2.2 for post-processing.
+
+        Parameters:
+            quality_filter: a function that takes in an image and outputs whether or not to use it
+            MAX_IMAGES: the maximum amount of images to use
+            (GAMMA): treat it as 2.2
+            FINAL_ND: simulates an ND filter on the final image, multiplies individual images by 2 ** -ND
         '''
 
         self.final_image, self.image_count = self.stack_accumulate(quality_filter = quality_filter, MAX_IMAGES = MAX_IMAGES, GAMMA = 1, ND = 0)
@@ -112,8 +149,11 @@ class KZStack:
 
     def post_process_final_image(self, denoise_function = default_denoise, GAMMA = 2.2):
         '''
-        denoise_function: a function that takes in an image and outputs a denoised version
-        GAMMA: the opposite of what was used to reverse the effect, should be 2.2 unless you changed it
+        Post-process the final image, denoising it and redoing the gamma effect.
+
+        Parameters:
+            denoise_function: a function that takes in an image and outputs a denoised version
+            GAMMA: the opposite of what was used to reverse the effect, should be 2.2 unless you changed it
         '''
 
         self.original_image = self.final_image.copy()
