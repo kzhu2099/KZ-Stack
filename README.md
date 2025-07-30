@@ -1,25 +1,27 @@
 # kzstack
 
-kzstack is a package to stack images for many purposes.
+`kzstack` is a package to stack images for many purposes.
+
+There are many use cases, but it is especially important in long-exposure photography and astrophotography.
 
 - HomePage: https://github.com/kzhu2099/KZ-Stack
 - Issues: https://github.com/kzhu2099/KZ-Stack/issues
 
-[![PyPI Downloads](https://static.pepy.tech/badge/kzstack)](https://pepy.tech/projects/kzstack)
+[![PyPI Downloads](https://static.pepy.tech/badge/kzstack)](https://pepy.tech/projects/kzstack) ![PyPI version](https://img.shields.io/pypi/v/kzstack.svg)
 
 Author: Kevin Zhu
 
 ## Features
 
 - ability to stack images
-- gamma correction accounted
+- gamma correction accounted for
 - custom quality / denoising functions
 - image showing / saving
 - bias usage
 
 ## Installation
 
-To install kzstack, use pip: ```pip install kzstack```.
+To install `kzstack`, use pip: ```pip install kzstack```.
 
 However, many prefer to use a virtual environment.
 
