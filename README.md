@@ -1,5 +1,7 @@
 # kzstack
 
+kzstack is a package to stack images for many purposes.
+
 - HomePage: https://github.com/kzhu2099/KZ-Stack
 - Issues: https://github.com/kzhu2099/KZ-Stack/issues
 

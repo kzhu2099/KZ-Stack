@@ -5,9 +5,9 @@ build-backend = 'setuptools.build_meta'
 [project]
 name = 'kzstack'
 
-version = '1.0.0'
+version = '1.0.1'
 
-description = 'a library to stack images'
+description = 'a package to stack images for many purposes'
 
 authors = [{name = 'Kevin Zhu'}, {email = 'kzhu2099@gmail.com'}]
 maintainers = [{name = 'Kevin Zhu'}, {email = 'kzhu2099@gmail.com'}]
