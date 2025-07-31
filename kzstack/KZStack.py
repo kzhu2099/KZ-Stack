@@ -63,7 +63,7 @@ class KZStack:
 
         return self.biases
 
-    def stack_accumulate(self, quality_filter = default_sharpness_filter, MAX_IMAGES = None, GAMMA = 2.2, ND = 0):
+    def stack_accumulate(self, quality_filter = default_sharpness_filter, MAX_IMAGES = None, GAMMA = 2.2, ND = 1):
         '''
         Stacks images together, brightening the overall picture.
 
@@ -71,7 +71,7 @@ class KZStack:
             quality_filter: a function that takes in an image and outputs whether or not to use it
             MAX_IMAGES: the maximum amount of images to use
             GAMMA: an effect to undo what many cameras do, set to 1 if you would not like to use it
-            ND: simulates an ND filter, multiplies individual images by 2 ** -ND
+            ND: simulates an ND filter, multiplies individual images by 1 / ND (NOT STOPS!)
         '''
 
         self.final_image = None
@@ -85,7 +85,7 @@ class KZStack:
                 self.final_image = numpy.zeros_like(image, dtype = 'float32')
 
             if quality_filter(image):
-                image = (2 ** -ND) * (image ** GAMMA)
+                image = (image ** GAMMA) / ND
                 image = numpy.nan_to_num(image, nan = 0, posinf = 255, neginf = 0)
                 self.final_image += image
                 self.image_count += 1
@@ -126,7 +126,7 @@ class KZStack:
 
         return self.final_image, self.image_count
 
-    def stack_average(self, quality_filter = default_sharpness_filter, MAX_IMAGES = None, FINAL_ND = 0):
+    def stack_average(self, quality_filter = default_sharpness_filter, MAX_IMAGES = None, FINAL_ND = 1):
         '''
         Stacks images together, averaging the pixel values at each position (accumulate ND = 0, / image count). Treat GAMMA as 2.2 for post-processing.
 
@@ -134,14 +134,14 @@ class KZStack:
             quality_filter: a function that takes in an image and outputs whether or not to use it
             MAX_IMAGES: the maximum amount of images to use
             (GAMMA): treat it as 2.2
-            FINAL_ND: simulates an ND filter on the final image, multiplies individual images by 2 ** -ND
+            FINAL_ND: simulates an ND filter on the final image, multiplies individual images by 1 / ND
         '''
 
         self.final_image, self.image_count = self.stack_accumulate(quality_filter = quality_filter, MAX_IMAGES = MAX_IMAGES, GAMMA = 1, ND = 0)
 
         self.final_image /= self.image_count
 
-        self.final_image *= 2 ** -FINAL_ND
+        self.final_image *= 1 / FINAL_ND
 
         self.final_image = self.final_image ** 2.2
 

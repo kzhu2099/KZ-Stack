@@ -5,7 +5,7 @@ build-backend = 'setuptools.build_meta'
 [project]
 name = 'kzstack'
 
-version = '1.0.3'
+version = '1.0.4'
 
 description = 'a package to stack images for many purposes'
 
